@@ -4,7 +4,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.1.1/highcharts.js"></script>
 
-<div id="chart"></div>
+<div id="chart" style="width: 100%; max-width: 600px; height: 1000px"></div>
 
 <script>
 var vl = {
@@ -676,7 +676,7 @@ Object.keys(vl).forEach(function(v) {
             color: 'green',
             label: {
                 text: v,
-                align: 'left',
+                align: 'right',
             },
             value: d,
             width: 1
@@ -686,10 +686,15 @@ Object.keys(vl).forEach(function(v) {
 
 Highcharts.chart('chart', {
     chart: {
-        type: 'line'
+        type: 'areaspline',
+        inverted: true
     },
     title: {
-        text: 'approval rating českých vlád'
+        text: 'Důvěra vládě ČR'
+    },
+    credits: {
+      text: 'data: CVVM',
+      link: 'http://cvvmapp.soc.cas.cz/'
     },
     xAxis: {
         type: 'datetime',
@@ -698,24 +703,40 @@ Highcharts.chart('chart', {
             year: '%Y-%m'
         },
         title: {
-            text: 'měsíc'
+            text: ''
         },
-        plotLines: lines
+        plotLines: lines,
+        tickInterval: 15000000000
     },
     yAxis: {
         title: {
             text: 'podíl %'
         },
-        min: 0
+        min: 0,
+        opposite: true
+    },
+    legend: {
+      verticalAlign: "top"
     },
     tooltip: {
-        headerFormat: '<b>{series.name}</b><br>',
-        pointFormat: '{point.x:%e. %b. %Y}: {point.y:.1f} %'
+        shared: true,
+        positioner: function(a,b,c) {
+          return {x: c.plotX+120, y: c.plotY+40}
+        },
+        formatter: function() {
+          var date = new Date(this.x);
+          return "<b>" + (parseInt(date.getMonth())+1) + "/" + date.getFullYear() + "</b>" + "<br>" 
+          + this.points[1].y.toString().replace(".",",") + " % " + this.points[1].series.name + "<br>"
+          + this.points[0].y.toString().replace(".",",") + " % " + this.points[0].series.name + "<br>"
+          + this.points[2].y.toString().replace(".",",") + " % " + this.points[2].series.name
+          }
     },
     plotOptions: {
-        step: true
+        areaspline: {
+          fillOpacity: 0.75
+        }
     },
-    colors: ['blue', 'red', 'lightgray'],
-    series: dta
+    colors: ['#FF0000', '#0000FF', '#D3D3D3'],
+    series: [dta[1], dta[0], dta[2]]
 });
 </script>
